@@ -14,6 +14,11 @@ require_once('constant.php');
 require_once('autoload.php');
 
 // -------------------------------------------
+// quick functions
+// -------------------------------------------
+require_once('functions.php');
+
+// -------------------------------------------
 // Start meSmart Framework
 // -------------------------------------------
 meSmart\Main::run();

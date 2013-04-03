@@ -7,7 +7,9 @@ class Application {
 
 	public static function build() {
 		
-		new App\Routes();
+		App\Route::parse();
+
+		echo App\Route::name('group');
 
 	}
 }
