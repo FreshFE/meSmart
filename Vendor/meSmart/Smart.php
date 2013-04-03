@@ -17,7 +17,7 @@ use App;
  * 载入 App & group Config
  * 执行controller->method()
  */
-class Framework {
+class Smart {
 
 	/**
 	 * http request pathinfo
@@ -52,6 +52,13 @@ class Framework {
 	public static $method;
 
 	/**
+	 * 配置信息
+	 *
+	 * @var string
+	 */
+	public static $config;
+
+	/**
 	 * 建设整个Application就是由这里开始的
 	 * ~_~， Good luck to you!
 	 *
@@ -63,7 +70,24 @@ class Framework {
 		static::parseRoute();
 
 		// 加载配置，App & group config
-		static::loadConfig();
+		static::parseConfig();
+
+		// 加载行为
+		// static::parseTag();
+
+		// 加载语言
+		// static::parseLang();
+
+		// 初始化关键参数
+		static::parseReq();
+
+		static::parseRes();
+
+		// 加载Session
+		// Session::config();
+
+		// 执行程序
+		// static::exec();
 	}
 
 	/**
@@ -87,5 +111,39 @@ class Framework {
 		static::$group = $controller['group'];
 		static::$module = $controller['module'];
 		static::$method = $controller['method'];
+	}
+
+	/**
+	 * 加载分组配置
+	 */
+	private static function parseConfig()
+	{
+		$class = 'App\\'.static::$group.'\\Config';
+		static::$config = new $class;
+	}
+
+	/**
+	 * 解析发送
+	 */
+	private static function parseRes()
+	{
+		// 设置系统时区
+        date_default_timezone_set(Config::get('default_timezone'));
+	}
+
+	/**
+	 * 解析请求
+	 */
+	private static function parseReq()
+	{
+		// 系统变量安全过滤
+		if(Config::get('var_filters'))
+		{
+		    foreach(explode(',', Config::get('var_filters')) as $filter)
+		    {
+		        array_walk_recursive($_POST, $filter);
+		        array_walk_recursive($_GET, $filter);
+		    }
+		}
 	}
 }

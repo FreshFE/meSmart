@@ -66,7 +66,7 @@ class Main {
 		}
 
 		// 启动程序
-		Framework::build();
+		Smart::build();
 	}
 
 	/**
