@@ -66,7 +66,7 @@ class Main {
 		}
 
 		// 启动程序
-		Application::build();
+		Framework::build();
 	}
 
 	/**
