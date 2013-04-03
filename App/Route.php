@@ -2,6 +2,7 @@
 namespace App;
 
 use meSmart;
+use meSmart\Routes as Routes;
 
-class Route extends meSmart\Route {
+class Route extends Routes\Path {
 }
