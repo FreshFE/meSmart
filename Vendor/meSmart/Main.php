@@ -83,7 +83,7 @@ class Main {
 		{
 			// 如果不存在Runtime则创建
 			if(!is_dir(RUNTIME_PATH)) {
-			    if(!mkdir(RUNTIME_PATH, 777)) {
+			    if(!mkdir(RUNTIME_PATH)) {
 			    	exit('No access to create runtime directory.');
 			    }
 			}
@@ -91,7 +91,7 @@ class Main {
 			// 检查并创建Runtime下的缓存目录
 			foreach (array(CACHE_PATH, LOG_PATH, TEMP_PATH, DATA_PATH) as $key => $value)
 			{
-			    if(!is_dir($value)) mkdir($value, 777);
+			    if(!is_dir($value)) mkdir($value);
 			}
 		}
 	}
@@ -119,6 +119,12 @@ class Main {
 	 */
 	private static function start_app()
 	{
+		$class_mapping = Core::classes_exists(array(
+			'App\\'.GROUP_NAME.'\\Mapping',
+			__NAMESPACE__.'\\Mapping'
+		));
 
+		$mapping = new $class_mapping;
+		dump($mapping->nihao);
 	}
 }
