@@ -33,4 +33,11 @@ class Core {
 			}
 		}
 	}
+
+	public static function error(\Exception $error)
+	{
+		if(APP_DEBUG) {
+			echo $error->getMessage();
+		}
+	}
 }

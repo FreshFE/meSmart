@@ -26,6 +26,8 @@ define('CACHE_PATH', RUNTIME_PATH . 'Cache/');
 // -------------------------------------------
 class Main {
 
+	public static $mapping;
+
 	/**
 	 * 将meSmart\Main运行起来
 	 * ~_~ meSmart 开始了哦
@@ -45,7 +47,7 @@ class Main {
 		static::runtime();
 
 		// 解析url请求，
-		// 分析当前请求匹配什么App分组，并定义常量GROUP_PATH
+		// 分析当前请求匹配什么App分组，并定义常量GROUP_NAME
 		static::group();
 
 		// 加载分组的核心配置文件，并执行应用
@@ -102,14 +104,11 @@ class Main {
 	 */
 	private static function group()
 	{
-		// 1. 得到group name
+		// 得到group name
 		$group_name = Core::get_group_name();
 
-		// 2. 定义 Group Name
+		// !1. 定义 Group Name，非常重要，后续加载何分组文件都依赖于这个路径
 		define('GROUP_NAME', $group_name);
-
-		// 3. Group Path，非常重要，后续加载何分组文件都依赖于这个路径
-		define('GROUP_PATH', APP_PATH . GROUP_NAME . '/');
 	}
 
 	/**
@@ -119,15 +118,134 @@ class Main {
 	 */
 	private static function start_app()
 	{
-		$mapping = Core::classes_exists(array(
+		// 解析加载映射
+		static::start_mapping();
+
+		// 解析配置
+
+		// 解析行为标签
+
+		// 解析语言包
+
+		// 解析路由，得到 MODULE_NAME & METHOD_NAME
+		static::start_route();
+
+		// App begin
+
+		// Session初始化
+
+		// App auth
+
+		// 执行程序
+		static::start_exec();
+
+		// App end
+
+		// Log
+	}
+
+	/**
+	 * 核心映射
+	 * 告诉meSmart应该使用哪个route, tag, language类
+	 * 默认先加载App group分组下的Mapping，不存在的话则读取meSmart下的Mapping
+	 * 开发者可以通过修改App下Mapping的继承关系来改变类映射关系
+	 * 执行该方法后，该方法的Mapping映射关系将会被保存到Main的mapping静态属性内，供其他类直接使用
+	 */
+	private static function start_mapping()
+	{
+		static::$mapping = Core::classes_exists(array(
 			'App\\'.GROUP_NAME.'\\Mapping',
 			__NAMESPACE__.'\\Mapping'
 		));
+	}
+
+	/**
+	 * 根据Mapping的关系，解析路由
+	 * 根据程序执行的需求，路由必须实现getController接口
+	 * 返回
+	 * <code>
+	 * 		array(
+	 * 			'module' => '',
+	 * 			'method' => ''
+	 * 		);
+	 * </code>
+	 * 本方法根据返回的module和method，将这些相关的信息定义为常量
+	 * 供exec程序执行，所以这些方法非常重要
+	 */
+	private static function start_route()
+	{
+		$mapping = static::$mapping;
 
 		$route = $mapping::$route;
 
 		$controller = $route::getController();
 
-		dump($controller);
+		// !2. 模块名称，也就是相对应的Controller类
+		define('MODULE_NAME', $controller['module']);
+
+		// !3. 方法名称，Controller类下执行什么方法
+		define('METHOD_NAME', $controller['method']);
+	}
+
+	/**
+	 * 执行程序
+	 * 根据上面的配置得到了GROUP_NAME, MODULE_NAME & METHOD_NAME
+	 * 根据这些信息，准确的找到执行何分组下何类的何方法
+	 */
+	private static function start_exec()
+	{
+		try
+		{	
+			// -------------------------------------------
+			// 解析Module部分
+			// -------------------------------------------
+
+			// 安全过滤
+			if(!preg_match('/^[A-Za-z](\w)*$/', MODULE_NAME))
+			{
+			    throw new \Exception('This controller name is danger!');
+			}
+			// 加载module类
+			else {
+			    $module = 'App\\'.GROUP_NAME.'\\Controller\\'.MODULE_NAME;
+
+			    // 检查是否存在
+			    if(class_exists($module)) {
+			    	$controller = new $module;
+			    }
+			    else {
+			    	throw new \Exception(MODULE_NAME.' is no extis!');
+			    }
+			}
+
+			// -------------------------------------------
+			// 解析Method部分
+			// -------------------------------------------
+
+			// 安全过滤
+			if(!preg_match('/^[A-Za-z](\w)*$/', METHOD_NAME))
+			{
+			    throw new \Exception('This controller method is error!');
+			}
+			else {
+				// 方法名
+				$method = METHOD_NAME;
+
+				// 对当前控制器的方法执行操作映射
+				$reflection = new \ReflectionMethod($controller, $method);
+				
+				// public方法
+				if($reflection->isPublic()) {
+					$controller->$method();
+				}
+				// 操作方法不是Public 抛出异常
+				else {
+				    throw new \Exception(METHOD_NAME.'not public method!');
+				}
+			}
+
+		} catch (\Exception $e) {
+			Core::error($e);
+		}
 	}
 }

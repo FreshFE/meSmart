@@ -24,7 +24,7 @@ class Path {
 	 *
 	 * @var array
 	 */
-	protected $paths;
+	protected static $paths;
 
 	/**
 	 * 存在控制器地址的数组
@@ -32,13 +32,13 @@ class Path {
 	 *
 	 * @var array
 	 */
-	protected $controller;
+	protected static $controller;
 
 	/**
 	 * 分组列表，以,分割
 	 * @var string
 	 */
-	protected $grouplist = 'Home,Admin,Api';
+	protected static $grouplist = 'Admin,Home,Api';
 
 	/**
 	 * 获得paths数组
@@ -46,13 +46,13 @@ class Path {
 	 *
 	 * @return array
 	 */
-	public function getPaths()
+	public static function getPaths()
 	{
-		if(is_null($this->paths)) {
-			$this->parse();
+		if(is_null(static::$paths)) {
+			static::parse();
 		}
 
-		return $this->paths;
+		return static::$paths;
 	}
 
 	/**
@@ -62,26 +62,26 @@ class Path {
 	 *
 	 * @return array
 	 */
-	public function getController()
+	public static function getController()
 	{
-		if(is_null($this->controller)) {
-			$this->parse();
+		if(is_null(static::$controller)) {
+			static::parse();
 		}
 
-		return $this->controller;
+		return static::$controller;
 	}
 
 	/**
 	 * 类似于构造函数
 	 * 测试时使用
 	 */
-	protected function parse()
+	protected static function parse()
 	{
-		$this->parsePathinfo();
+		static::parsePathinfo();
 
-		$this->parseController();
+		static::parseController();
 
-		$this->parseQuery();
+		static::parseQuery();
 	}
 
 	/** 
@@ -91,14 +91,14 @@ class Path {
 	 *
 	 * @return void
 	 */
-	protected function parsePathinfo()
+	protected static function parsePathinfo()
 	{
-		$this->paths = array();
+		static::$paths = array();
 
 		if(isset($_SERVER['PATH_INFO']))
 		{
 			$pathinfo = strip_tags($_SERVER['PATH_INFO']);
-			$this->paths = explode('/', trim($pathinfo, '/'));
+			static::$paths = explode('/', trim($pathinfo, '/'));
 		}
 	}
 
@@ -107,28 +107,17 @@ class Path {
 	 * 依次顺序为group name, controller name, method name
 	 * 必须在parsePathinfo方法后执行该方法
 	 */
-	protected function parseController()
+	protected static function parseController()
 	{
-		$paths = $this->paths;
+		$paths = static::$paths;
 
-		// 首字母大写
-		$name = ucfirst($paths[0]);
-		$list = explode(',', $this->grouplist);
-		
-		// 如果不存在
-		if(!in_array($name, $list)) {
-			$name = 'Home';
-			$key = 0;
-		}
-		// 如果存在
-		else {
-			$key = 1;
+		if($paths[0] === strtolower(GROUP_NAME)) {
+			array_shift($paths);
 		}
 
-		$this->controller = array(
-			'group' => $name,
-			'module' => isset($paths[$key]) ? $paths[$key] : 'Index',
-			'method' => isset($paths[$key + 1]) ? $paths[$key + 1] : 'index'
+		static::$controller = array(
+			'module' => isset($paths[0]) ? ucfirst($paths[0]) : 'Index',
+			'method' => isset($paths[1]) ? $paths[1] : 'index'
 		);
 	}
 
@@ -141,11 +130,11 @@ class Path {
 	 *
 	 * @return void
 	 */
-	protected function parseQuery()
+	protected static function parseQuery()
 	{
-		if(count($this->paths) > 3)
+		if(count(static::$paths) > 3)
 		{
-			$paths = $this->paths;
+			$paths = static::$paths;
 			$paths = array_splice($paths, 3);
 
 			// 偶数项为name，奇数项为value
