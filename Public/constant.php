@@ -14,7 +14,7 @@ define('APP_DEBUG', true);
 define('APP_PATH', '../App/');
 define('PUBLIC_PATH', '../Public/');
 define('VENDOR_PATH', '../Vendor/');
-define('RUNTIME_PATH', '../App/Runtime/');
+define('RUNTIME_PATH', '../Runtime/');
 
 // -------------------------------------------
 // 6. File Extension
