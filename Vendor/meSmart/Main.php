@@ -119,12 +119,15 @@ class Main {
 	 */
 	private static function start_app()
 	{
-		$class_mapping = Core::classes_exists(array(
+		$mapping = Core::classes_exists(array(
 			'App\\'.GROUP_NAME.'\\Mapping',
 			__NAMESPACE__.'\\Mapping'
 		));
 
-		$mapping = new $class_mapping;
-		dump($mapping->nihao);
+		$route = $mapping::$route;
+
+		$controller = $route::getController();
+
+		dump($controller);
 	}
 }
