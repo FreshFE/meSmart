@@ -12,6 +12,4 @@ use App;
  * App group config
  */
 class Config extends App\Config {
-
-	public $session_prefix = 'meSmart2_';
 }

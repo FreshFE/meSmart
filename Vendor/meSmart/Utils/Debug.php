@@ -1,5 +1,5 @@
 <?php
-namespace meSmart;
+namespace meSmart\Utils;
 
 class Debug {
 

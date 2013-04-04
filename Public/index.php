@@ -21,4 +21,4 @@ require_once('functions.php');
 // -------------------------------------------
 // Start meSmart Framework
 // -------------------------------------------
-meSmart\Main::run();
+meSmart\Main::init();

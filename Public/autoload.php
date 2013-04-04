@@ -1,6 +1,14 @@
 <?php
 
 // -------------------------------------------
+// echo autoload error
+// -------------------------------------------
+if(!defined('AUTOLOAD_DEBUG'))
+{
+	define('AUTOLOAD_DEBUG', false);
+}
+
+// -------------------------------------------
 // regitsrt autoload
 // -------------------------------------------
 spl_autoload_register(function($classname) {
@@ -18,10 +26,6 @@ spl_autoload_register(function($classname) {
 		include $file;
 	}
 	else {
-		exit("autoload don't find the class and file, '" .
-			 $classname .
-			 "', filename is " .
-			 $filename
-		);
+		exit("autoload don't find the class and file, '" . $classname . "', filename is " . $filename);
 	}
 });
