@@ -25,7 +25,7 @@ spl_autoload_register(function($classname) {
 	if($file) {
 		include $file;
 	}
-	else {
+	else if(AUTOLOAD_DEBUG) {
 		exit("autoload don't find the class and file, '" . $classname . "', filename is " . $filename);
 	}
 });

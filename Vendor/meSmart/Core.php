@@ -24,4 +24,13 @@ class Core {
 
 		return $group_name;
 	}
+
+	public static function classes_exists(array $classes)
+	{
+		foreach ($classes as $key => $class) {
+			if(class_exists($class)) {
+				return $class;
+			}
+		}
+	}
 }
