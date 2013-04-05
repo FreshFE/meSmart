@@ -12,4 +12,13 @@ use meSmart;
  * App group config
  */
 class Mapping extends meSmart\Mapping {
+
+	// public static $event_before = array(
+	// 	'route' => 'route_array'
+	// );
+
+	public static function route_array()
+	{
+		dump('route_array');
+	}
 }

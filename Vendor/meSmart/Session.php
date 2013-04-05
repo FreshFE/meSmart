@@ -5,6 +5,7 @@ class Session {
 
 	/**
 	 * 初始化配置session
+	 * init方法必须在session_start之前使用
 	 * session 函数参考，http://www.php.net/manual/zh/ref.session.php
 	 * session runtime 配置参考，http://www.php.net/manual/zh/session.configuration.php
 	 *
@@ -13,41 +14,32 @@ class Session {
 	 */
 	public static function init($name) {
 
-		// 配置session id
-		if(isset($name['id']))
-		{
-			session_id($name['id']);
-		}
+		// 1. 配置session id
+		if(isset($name['id'])) 				session_id($name['id']);
 
-		// 关闭session自动开始
-		ini_set('session.auto_start', 0);
-
-		// 1. session name, e.g. PHPSESSID，所以一般情况下不要更改
+		// 2. session name, e.g. PHPSESSID，所以一般情况下不要更改
 		if(isset($name['name']))            session_name($name['name']);
 
-		// 2. session path, Session保存的路径
+		// 3. session path, Session保存的路径
 		if(isset($name['path']))            session_save_path($name['path']);
 
-		// 3. session domain, 域名
+		// 4. session domain, 域名
 		if(isset($name['domain']))          ini_set('session.cookie_domain', $name['domain']);
 
-		// 4. session expire, 存在时间
+		// 5. session expire, 存在时间
 		if(isset($name['expire']))          ini_set('session.gc_maxlifetime', $name['expire']);
 
-		// 5. 是否解析用户发送在url内的session id，默认为关闭
+		// 6. 是否解析用户发送在url内的session id，默认为关闭
 		if(isset($name['use_trans_sid']))   ini_set('session.use_trans_sid', $name['use_trans_sid'] ? 1 : 0);
 
-		// 6. 是否使用cookie来配合session保存session值
+		// 7. 是否使用cookie来配合session保存session值
 		if(isset($name['use_cookies']))     ini_set('session.use_cookies', $name['use_cookies'] ? 1 : 0);
 
-		// 7. 缓存限制
+		// 8. 缓存限制
 		if(isset($name['cache_limiter']))   session_cache_limiter($name['cache_limiter']);
 
-		// 8. 缓存时间
+		// 9. 缓存时间
 		if(isset($name['cache_expire']))    session_cache_expire($name['cache_expire']);
-
-		// 启动session
-		session_start();
 	}
 
 	/**
