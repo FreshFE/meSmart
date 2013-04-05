@@ -62,6 +62,7 @@ class Main {
 
 		// php错误输出
 		if (APP_DEBUG && !ini_get('display_errors')) {
+			error_reporting(E_ERROR);
 		    ini_set('display_errors', 1);
 		}
 	}
@@ -122,6 +123,7 @@ class Main {
 		static::start_mapping();
 
 		// 解析配置
+		static::start_config();
 
 		// 解析行为标签
 
@@ -131,10 +133,13 @@ class Main {
 		static::start_route();
 
 		// App begin
+		// Mapping::listen('app_begin');
 
 		// Session初始化
+		Session::init(Config::get('session_config'));
 
 		// App auth
+		// Auth::check();
 
 		// 执行程序
 		static::start_exec();
@@ -185,6 +190,18 @@ class Main {
 
 		// !3. 方法名称，Controller类下执行什么方法
 		define('METHOD_NAME', $controller['method']);
+	}
+
+	private static function start_config()
+	{
+		// 框架配置
+		Config::set(include MESMART_PATH.'Configs/main.php');
+
+		// 项目配置
+		Config::set(include APP_PATH.'Configs/main.php');
+
+		// 分组配置
+		Config::set(include GROUP_PATH.'Configs/main.php');
 	}
 
 	/**
