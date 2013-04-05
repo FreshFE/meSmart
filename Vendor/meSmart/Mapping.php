@@ -155,7 +155,7 @@ class Mapping {
 			}
 			// 加载module类
 			else {
-			    $module = 'App\\'.GROUP_NAME.'\\Controller\\'.MODULE_NAME;
+			    $module = 'App\\'.GROUP_NAME.'\\Controllers\\'.MODULE_NAME;
 
 			    // 检查是否存在
 			    if(class_exists($module)) {

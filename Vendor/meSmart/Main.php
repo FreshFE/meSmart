@@ -26,6 +26,12 @@ define('CACHE_PATH', RUNTIME_PATH . 'Cache/');
 // -------------------------------------------
 class Main {
 
+	/**
+	 * 项目最核心的类映射就是存储在这里的
+	 * 你要继续往下看代码就会看到这个是干什么的了
+	 *
+	 * @var array
+	 */
 	public static $mapping;
 
 	/**
@@ -125,19 +131,8 @@ class Main {
 		// 解析配置
 		static::start_config();
 
-		// 解析语言包
-		// static::start_language();
-
 		// 执行程序
 		static::exec_mapping();
-
-		// Log
-	}
-
-	private static function exec_mapping()
-	{
-		$mapping = static::$mapping;
-		$mapping::exec();
 	}
 
 	/**
@@ -155,6 +150,10 @@ class Main {
 		));
 	}
 
+	/**
+	 * 加载配置信息
+	 * 依次加载meSmart配置，App配置和Group配置，并将新的覆盖旧的
+	 */
 	private static function start_config()
 	{
 		// 框架配置
@@ -165,5 +164,18 @@ class Main {
 
 		// 分组配置
 		Config::set(include GROUP_PATH.'Configs/main.php');
+	}
+
+	/**
+	 * 执行核心映射的功能
+	 * 核心映射文件可以被分组的Mapping.php继承，重写和扩展
+	 * 也就是说可以在Mapping里做任何你想新添加的事情
+	 * 而随着meSmart越来越完善，能提供被继承的包也会越来越多
+	 * 当然，还有就是我们很提倡使用很多已经很常用和成熟的第三方库！
+	 */
+	private static function exec_mapping()
+	{
+		$mapping = static::$mapping;
+		$mapping::exec();
 	}
 }

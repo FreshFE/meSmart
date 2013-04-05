@@ -1,5 +1,5 @@
 <?php
-namespace App\Home\Controller;
+namespace App\Home\Controllers;
 
 class Account {
 
