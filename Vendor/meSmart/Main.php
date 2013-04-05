@@ -144,10 +144,12 @@ class Main {
 	 */
 	private static function start_mapping()
 	{
-		static::$mapping = Core::classes_exists(array(
-			'App\\'.GROUP_NAME.'\\Mapping',
-			__NAMESPACE__.'\\Mapping'
-		));
+		// static::$mapping = Core::classes_exists(array(
+		// 	'App\\'.GROUP_NAME.'\\Mapping',
+		// 	__NAMESPACE__.'\\Mapping'
+		// ));
+
+		static::$mapping = 'App\\'.GROUP_NAME.'\\Mapping';
 	}
 
 	/**
