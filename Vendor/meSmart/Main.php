@@ -1,6 +1,8 @@
 <?php
 namespace meSmart;
 
+use \Exception;
+
 // -------------------------------------------
 // meSmart 路径
 // -------------------------------------------
@@ -112,7 +114,7 @@ class Main {
 	private static function group()
 	{
 		// 得到group name
-		$group_name = Core::get_group_name();
+		$group_name = static::get_group_name();
 
 		// !1. 定义 Group Name，非常重要，后续加载何分组文件都依赖于这个路径
 		define('GROUP_NAME', $group_name);
@@ -144,7 +146,7 @@ class Main {
 	 */
 	private static function start_mapping()
 	{
-		// static::$mapping = Core::classes_exists(array(
+		// static::$mapping = static::classes_exists(array(
 		// 	'App\\'.GROUP_NAME.'\\Mapping',
 		// 	__NAMESPACE__.'\\Mapping'
 		// ));
@@ -179,5 +181,64 @@ class Main {
 	{
 		$mapping = static::$mapping;
 		$mapping::exec();
+	}
+
+	/**
+	 * 得到分组名称
+	 * 通过分析pathinfo，得到当前的url分组
+	 * 后期将加入功能，使得分组可以具有二级域名分析能力
+	 *
+	 * @return string
+	 */
+	public static function get_group_name()
+	{
+		// 获得pathinfo
+		$path = trim($_SERVER['PATH_INFO'], '/');
+
+		// 获得分组列表
+		$groups = explode(',', 'Admin,Home,Api');
+
+		// 默认分组名称
+		$group_name = 'Home';
+
+		// 遍历groups，寻找匹配的 Group Name
+		foreach ($groups as $key => $group) {
+			if(strpos(strtolower($path), strtolower($group)) === 0) {
+				$group_name = $group;
+				break;
+			}
+		}
+
+		return $group_name;
+	}
+
+	/**
+	 * 按序检查多个类是否存在
+	 * 若存在则不再检查下一个类，若不存在则逐序向下检查
+	 *
+	 * @param array $classes
+	 * @return void
+	 */
+	public static function classes_exists(array $classes)
+	{
+		foreach ($classes as $key => $class) {
+			if(class_exists($class)) {
+				return $class;
+			}
+		}
+	}
+
+	/**
+	 * 如果程序通过try catch抛出错误
+	 * 则可以通过使用error来调整输出错误的格式和错误信息
+	 *
+	 * @param \Exception $error
+	 * @return void
+	 */
+	public static function error(Exception $error)
+	{
+		if(APP_DEBUG) {
+			echo $error->getMessage();
+		}
 	}
 }

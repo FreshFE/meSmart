@@ -1,6 +1,9 @@
 <?php
 namespace meSmart;
 
+use \Exception;
+use \ReflectionMethod;
+
 class Mapping {
 
 	/**
@@ -110,13 +113,13 @@ class Mapping {
 	{
 		$route = static::$route;
 
-		$controller = $route::getController();
+		$router = new $route();
 
 		// !2. 模块名称，也就是相对应的Controller类
-		define('MODULE_NAME', $controller['module']);
+		define('MODULE_NAME', $router->getModule());
 
 		// !3. 方法名称，Controller类下执行什么方法
-		define('METHOD_NAME', $controller['method']);
+		define('METHOD_NAME', $router->getMethod());
 	}
 
 	/**
@@ -151,7 +154,7 @@ class Mapping {
 			// 安全过滤
 			if(!preg_match('/^[A-Za-z](\w)*$/', MODULE_NAME))
 			{
-			    throw new \Exception('This controller name is danger!');
+			    throw new Exception('This controller name is danger!');
 			}
 			// 加载module类
 			else {
@@ -162,7 +165,7 @@ class Mapping {
 			    	$controller = new $module;
 			    }
 			    else {
-			    	throw new \Exception(MODULE_NAME.' is no extis!');
+			    	throw new Exception(MODULE_NAME.' is no extis!');
 			    }
 			}
 
@@ -173,14 +176,14 @@ class Mapping {
 			// 安全过滤
 			if(!preg_match('/^[A-Za-z](\w)*$/', METHOD_NAME))
 			{
-			    throw new \Exception('This controller method is error!');
+			    throw new Exception('This controller method is error!');
 			}
 			else {
 				// 方法名
 				$method = METHOD_NAME;
 
 				// 对当前控制器的方法执行操作映射
-				$reflection = new \ReflectionMethod($controller, $method);
+				$reflection = new ReflectionMethod($controller, $method);
 				
 				// public方法
 				if($reflection->isPublic()) {
@@ -188,12 +191,12 @@ class Mapping {
 				}
 				// 操作方法不是Public 抛出异常
 				else {
-				    throw new \Exception(METHOD_NAME.'not public method!');
+				    throw new Exception(METHOD_NAME.'not public method!');
 				}
 			}
 
-		} catch (\Exception $e) {
-			Core::error($e);
+		} catch (Exception $e) {
+			Main::error($e);
 		}
 	}
 }

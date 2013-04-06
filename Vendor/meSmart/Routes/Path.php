@@ -24,7 +24,7 @@ class Path implements Route {
 	 *
 	 * @var array
 	 */
-	protected static $paths;
+	protected $paths;
 
 	/**
 	 * 存在控制器地址的数组
@@ -32,13 +32,13 @@ class Path implements Route {
 	 *
 	 * @var array
 	 */
-	protected static $controller;
+	protected $controller;
 
 	/**
 	 * 分组列表，以,分割
 	 * @var string
 	 */
-	protected static $grouplist = 'Admin,Home,Api';
+	protected $grouplist = 'Admin,Home,Api';
 
 	/**
 	 * 获得paths数组
@@ -46,42 +46,54 @@ class Path implements Route {
 	 *
 	 * @return array
 	 */
-	public static function getPaths()
+	public function getPaths()
 	{
-		if(is_null(static::$paths)) {
-			static::parse();
+		if(is_null($this->paths)) {
+			$this->parse();
 		}
 
-		return static::$paths;
+		return $this->paths;
 	}
 
 	/**
-	 * 获得controller数组
-	 * controller数组分为三项，分别为'group', 'module' & 'method'
-	 * 必须定义该接口供meSmart判断当前加载分组下的controller->method()
+	 * 获得Controller Module
 	 *
-	 * @return array
+	 * @return string
 	 */
-	public static function getController()
+	public function getModule()
 	{
-		if(is_null(static::$controller)) {
-			static::parse();
+		if(is_null($this->controller)) {
+			$this->parse();
 		}
 
-		return static::$controller;
+		return $this->controller['module'];
+	}
+
+	/**
+	 * 获得Controller Method
+	 *
+	 * @return string
+	 */
+	public function getMethod()
+	{
+		if(is_null($this->controller)) {
+			$this->parse();
+		}
+
+		return $this->controller['method'];
 	}
 
 	/**
 	 * 类似于构造函数
 	 * 测试时使用
 	 */
-	protected static function parse()
+	protected function parse()
 	{
-		static::parsePathinfo();
+		$this->parsePathinfo();
 
-		static::parseController();
+		$this->parseController();
 
-		static::parseQuery();
+		$this->parseQuery();
 	}
 
 	/** 
@@ -91,14 +103,23 @@ class Path implements Route {
 	 *
 	 * @return void
 	 */
-	protected static function parsePathinfo()
+	protected function parsePathinfo()
 	{
-		static::$paths = array();
+		$this->paths = array();
 
 		if(isset($_SERVER['PATH_INFO']))
 		{
+			// 获得pathinfo并去除html标签和前后的'/'
 			$pathinfo = strip_tags($_SERVER['PATH_INFO']);
-			static::$paths = explode('/', trim($pathinfo, '/'));
+			$paths = explode('/', trim($pathinfo, '/'));
+
+			// 剔除group name
+			if($paths[0] === strtolower(GROUP_NAME)) {
+				array_shift($paths);
+			}
+
+			// 保存类属性
+			$this->paths = $paths;
 		}
 	}
 
@@ -106,16 +127,14 @@ class Path implements Route {
 	 * 根据$this->paths分析相对应的controller和method
 	 * 依次顺序为group name, controller name, method name
 	 * 必须在parsePathinfo方法后执行该方法
+	 *
+	 * @return void
 	 */
-	protected static function parseController()
+	protected function parseController()
 	{
-		$paths = static::$paths;
+		$paths = $this->paths;
 
-		if($paths[0] === strtolower(GROUP_NAME)) {
-			array_shift($paths);
-		}
-
-		static::$controller = array(
+		$this->controller = array(
 			'module' => isset($paths[0]) ? ucfirst($paths[0]) : 'Index',
 			'method' => isset($paths[1]) ? $paths[1] : 'index'
 		);
@@ -124,18 +143,18 @@ class Path implements Route {
 	/**
 	 * 根据$this->paths分析相对应的query部分
 	 * 将解析出来的query部分合并到$_GET
-	 * 先判断$paths数组的长度，如果不大于3则表明controller未写全或query部分不存在
-	 * 当$paths数组的长度大于3时，按照'name/value'的格式转化为name => value的数组
+	 * 先判断$paths数组的长度，如果不大于2则表明controller未写全或query部分不存在
+	 * 当$paths数组的长度大于2时，按照'name/value'的格式转化为name => value的数组
 	 * 最后将得到的结果与$_GET合并
 	 *
 	 * @return void
 	 */
-	protected static function parseQuery()
+	protected function parseQuery()
 	{
-		if(count(static::$paths) > 3)
+		if(count($this->paths) > 2)
 		{
-			$paths = static::$paths;
-			$paths = array_splice($paths, 3);
+			$paths = $this->paths;
+			$paths = array_splice($paths, 2);
 
 			// 偶数项为name，奇数项为value
 			foreach ($paths as $key => $path) {
