@@ -16,7 +16,7 @@ use meSmart;
  * 解析url路径，匹配到controller供meSmart和App使用
  * 实现接口 'getPaths' 和 'getController'
  */
-class Path {
+class Path implements Route {
 
 	/**
 	 * 这是一个数组，存放由parsePathinfo方法分析出来的path路径
@@ -148,5 +148,4 @@ class Path {
 			return $_GET = array_merge($_GET, $temp);
 		}
 	}
-
 }
