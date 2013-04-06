@@ -104,7 +104,7 @@ class Base {
 	 */
 	protected function display($template)
 	{
-		$this->get_view()->fetch($this->template_file($template), $this->vars, true);
+		$this->get_view()->display($this->template_file($template), $this->vars);
 	}
 
 	/**
