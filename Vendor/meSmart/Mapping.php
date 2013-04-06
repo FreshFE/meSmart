@@ -3,6 +3,7 @@ namespace meSmart;
 
 use \Exception;
 use \ReflectionMethod;
+use meSmart\Utils\Session as Session;
 
 class Mapping {
 
