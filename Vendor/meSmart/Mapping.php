@@ -14,6 +14,8 @@ class Mapping {
 	 */
 	public static $route = 'meSmart\\Routes\\Path';
 
+	public static $view = 'meSmart\\Views\\Smarty';
+
 	/**
 	 * 在insert方法前执行的新的类的列表
 	 *
