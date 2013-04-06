@@ -67,7 +67,7 @@ class Base {
 		if(is_null($this->view)) {
 
 			// 获得Mapping名称
-			$mapping = meSmart\Main::$mapping;
+			$mapping = meSmart\Base::$mapping;
 
 			// 获得view名称
 			$view = $mapping::$view;

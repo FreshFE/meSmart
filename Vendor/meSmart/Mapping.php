@@ -199,7 +199,7 @@ class Mapping {
 			}
 
 		} catch (Exception $e) {
-			Main::error($e);
+			Base::error($e);
 		}
 	}
 }

@@ -24,9 +24,9 @@ define('DATA_PATH', RUNTIME_PATH . 'Data/');
 define('CACHE_PATH', RUNTIME_PATH . 'Cache/');
 
 // -------------------------------------------
-// meSmart Main Class, Main::init() to begin
+// meSmart Base Class, Base::init() to begin
 // -------------------------------------------
-class Main {
+class Base {
 
 	/**
 	 * 项目最核心的类映射就是存储在这里的
@@ -37,7 +37,7 @@ class Main {
 	public static $mapping;
 
 	/**
-	 * 将meSmart\Main运行起来
+	 * 将meSmart\Base运行起来
 	 * ~_~ meSmart 开始了哦
 	 * Good luck to you! 嘿嘿，你懂得
 	 */
@@ -142,7 +142,7 @@ class Main {
 	 * 告诉meSmart应该使用哪个route, tag, language类
 	 * 默认先加载App group分组下的Mapping，不存在的话则读取meSmart下的Mapping
 	 * 开发者可以通过修改App下Mapping的继承关系来改变类映射关系
-	 * 执行该方法后，该方法的Mapping映射关系将会被保存到Main的mapping静态属性内，供其他类直接使用
+	 * 执行该方法后，该方法的Mapping映射关系将会被保存到Base的mapping静态属性内，供其他类直接使用
 	 */
 	private static function start_mapping()
 	{
