@@ -1,56 +1,183 @@
 <?php
 namespace meSmart\Models;
 
+use \Exception;
 use meSmart\Config as Config;
 use meSmart\Models\Db as Db;
 use meSmart\Utils\File as File;
 
 class Base {
 
-    // 操作状态
-    const MODEL_INSERT          =   1;      //  插入模型数据
-    const MODEL_UPDATE          =   2;      //  更新模型数据
-    const MODEL_BOTH            =   3;      //  包含上面两种方式
-    const MUST_VALIDATE         =   1;      // 必须验证
-    const EXISTS_VALIDATE       =   0;      // 表单存在字段则验证
-    const VALUE_VALIDATE        =   2;      // 表单值不为空则验证
+    // -------------------------------------------
+    // 数据 create 操作状态
+    // -------------------------------------------
+    // 1. 插入模型数据
+    // 2. 更新模型数据
+    // 3. 包含上面两种方式
+    const MODEL_INSERT  = 1;
+    const MODEL_UPDATE  = 2;
+    const MODEL_BOTH    = 3;
 
-    // 当前使用的扩展模型
-    private   $_extModel        =   null;
-    // 当前数据库操作对象
-    protected $db               =   null;
-    // 主键名称
-    protected $pk               =   'id';
-    // 数据表前缀
-    protected $tablePrefix      =   '';
-    // 模型名称
-    protected $name             =   '';
-    // 数据库名称
-    protected $dbName           =   '';
-    //数据库配置
-    protected $connection       =   '';
-    // 数据表名（不包含表前缀）
-    protected $tableName        =   '';
-    // 实际数据表名（包含表前缀）
-    protected $trueTableName    =   '';
-    // 最近错误信息
-    protected $error            =   '';
-    // 字段信息
-    protected $fields           =   array();
-    // 数据信息
-    protected $data             =   array();
-    // 查询表达式参数
-    protected $options          =   array();
-    protected $_validate        =   array();  // 自动验证定义
-    protected $_auto            =   array();  // 自动完成定义
-    protected $_map             =   array();  // 字段映射定义
-    protected $_scope           =   array();  // 命名范围定义
-    // 是否自动检测数据表字段信息
-    protected $autoCheckFields  =   true;
-    // 是否批处理验证
-    protected $patchValidate    =   false;
-    // 链操作方法列表
-    protected $methods          =   array('table','order','alias','having','group','lock','distinct','auto','filter','validate');
+    // -------------------------------------------
+    // 数据验证状态
+    // -------------------------------------------
+    // 1. 必须验证
+    // 2. 表单存在字段则验证
+    // 3. 表单值不为空则验证
+    const MUST_VALIDATE     = 1;
+    const EXISTS_VALIDATE   = 0;
+    const VALUE_VALIDATE    = 2;
+
+    /**
+     * 当前使用的扩展模型
+     *
+     * @var
+     */
+    private $_extModel = null;
+    
+    /**
+     * 当前数据库操作对象
+     *
+     * @var
+     */
+    protected $db = null;
+    
+    /**
+     * 主键名称
+     *
+     * @var
+     */
+    protected $pk = 'id';
+    
+    /**
+     * 数据表前缀
+     *
+     * @var
+     */
+    protected $tablePrefix = '';
+
+    /**
+     * 模型名称
+     *
+     * @var
+     */
+    protected $name = '';
+    
+    /**
+     * 数据库名称
+     *
+     * @var
+     */
+    protected $dbName = '';
+
+    /**
+     * 数据库配置
+     *
+     * @var
+     */
+    protected $connection = '';
+    
+    /**
+     * 数据表名（不包含表前缀）
+     *
+     * @var
+     */
+    protected $tableName = '';
+    
+    /**
+     * 实际数据表名（包含表前缀）
+     *
+     * @var
+     */
+    protected $trueTableName = '';
+    
+    /**
+     * 最近错误信息
+     *
+     * @var
+     */
+    protected $error = '';
+    
+    /**
+     * 字段信息
+     *
+     * @var
+     */
+    protected $fields = array();
+    
+    /**
+     * 数据信息
+     *
+     * @var
+     */
+    protected $data = array();
+    
+    /**
+     * 查询表达式参数
+     *
+     * @var array
+     */
+    protected $options = array();
+
+    /**
+     * 自动验证定义
+     *
+     * @var array
+     */
+    protected $_validate = array();
+
+    /**
+     * 自动完成定义
+     *
+     * @var array
+     */
+    protected $_auto = array();
+
+    /**
+     * 字段映射定义
+     *
+     * @var array
+     */
+    protected $_map = array();
+
+    /**
+     * 命名范围定义
+     *
+     * @var array
+     */
+    protected $_scope = array();
+    
+    /**
+     * 是否自动检测数据表字段信息
+     *
+     * @var bealoon
+     */
+    protected $autoCheckFields = true;
+
+    /**
+     * 是否批处理验证
+     *
+     * @var bealoon
+     */
+    protected $patchValidate = false;
+    
+    /**
+     * 链操作方法列表
+     *
+     * @var array
+     */
+    protected $methods = array(
+        'table',
+        'order',
+        'alias',
+        'having',
+        'group',
+        'lock',
+        'distinct',
+        'auto',
+        'filter',
+        'validate'
+    );
 
     /**
      * 构造函数
@@ -62,15 +189,11 @@ class Base {
      *
      * @return void
      */
-    public function __construct($name = '', $tablePrefix = '', $connection = '') {
-
-        // TODO: 废弃功能
-        /*// 模型初始化
-        $this->_initialize();*/
-
+    public function __construct($name, $tablePrefix = '', $connection = '')
+    {
         // 获取模型名称
-        if(!empty($name)) {
-
+        if(!empty($name))
+        {
             // 支持 数据库名.模型名的 定义
             if(strpos($name, '.')) {
                 list($this->dbName, $this->name) = explode('.', $name);
@@ -80,8 +203,8 @@ class Base {
             }
         }
         // 为空查找类定义
-        elseif(empty($this->name)){
-            $this->name = $this->getModelName();
+        else {
+            throw new Exception("没有定义Model name", 1);
         }
 
         // 设置表前缀
@@ -101,6 +224,7 @@ class Base {
         // 数据库初始化操作
         // 获取数据库操作对象
         // 当前模型有独立的数据库连接信息
+        // $this->db();
         $this->db(0, empty($this->connection) ? $connection : $this->connection);
     }
 
@@ -533,6 +657,7 @@ class Base {
      * @return mixed
      */
     public function select($options=array()) {
+
         if(is_string($options) || is_numeric($options)) {
             // 根据主键查询
             $pk   =  $this->getPk();
@@ -1193,57 +1318,83 @@ class Base {
 
     /**
      * 切换当前的数据库连接
-     * @access public
-     * @param integer $linkNum  连接序号
-     * @param mixed $config  数据库连接信息
-     * @param array $params  模型参数
+     *
+     * @param int $linkNum 连接序号
+     * @param mixed $config 数据库连接信息
+     * @param array $params 模型参数
      * @return Model
      */
-    public function db($linkNum='',$config='',$params=array()){
-        if(''===$linkNum && $this->db) {
+    public function db($linkNum = '', $config = '', $params = array())
+    {
+        // 已经存在$this->db或链接序号为空
+        if($linkNum === '' && $this->db) {
             return $this->db;
         }
-        static $_linkNum    =   array();
+
+        // 静态缓存
+        static $_linkNum = array();
         static $_db = array();
-        if(!isset($_db[$linkNum]) || (isset($_db[$linkNum]) && $config && $_linkNum[$linkNum]!=$config) ) {
+
+        // 慢慢理解吧
+        if(!isset($_db[$linkNum]) || (isset($_db[$linkNum]) && $config && $_linkNum[$linkNum] != $config) )
+        {
             // 创建一个新的实例
-            if(!empty($config) && is_string($config) && false === strpos($config,'/')) { // 支持读取配置参数
+            // 支持读取配置参数
+            if(!empty($config) && is_string($config) && false === strpos($config,'/')) {
                 $config  =  Config::get($config);
             }
-            $_db[$linkNum]            =    Db::getInstance($config);
-        }elseif(NULL === $config){
-            $_db[$linkNum]->close(); // 关闭数据库连接
+
+            $_db[$linkNum] = Db::getInstance($config);
+        }
+        else if($config === null) {
+            // 关闭数据库连接
+            $_db[$linkNum]->close();
             unset($_db[$linkNum]);
             return ;
         }
-        if(!empty($params)) {
-            if(is_string($params))    parse_str($params,$params);
-            foreach ($params as $name=>$value){
-                $this->setProperty($name,$value);
+
+        // 存在模型参数
+        if(!empty($params))
+        {
+            if(is_string($params)) {
+                parse_str($params,$params);
+            }
+            foreach ($params as $name => $value) {
+                $this->setProperty($name, $value);
             }
         }
+
         // 记录连接信息
-        $_linkNum[$linkNum] =   $config;
+        $_linkNum[$linkNum] = $config;
+
         // 切换数据库连接
-        $this->db   =    $_db[$linkNum];
+        $this->db = $_db[$linkNum];
         $this->_after_db();
+
         // 字段检测
-        if(!empty($this->name) && $this->autoCheckFields)    $this->_checkTableInfo();
+        if(!empty($this->name) && $this->autoCheckFields) {
+            $this->_checkTableInfo();
+        }
+
         return $this;
     }
-    // 数据库切换后回调方法
+
+    /**
+     * 数据库切换后回调方法
+     */
     protected function _after_db() {}
 
+    // TODO: 删除不再有效方法
     /**
      * 得到当前的数据对象名称
      * @access public
      * @return string
      */
-    public function getModelName() {
-        if(empty($this->name))
-            $this->name =   substr(get_class($this),0,-5);
-        return $this->name;
-    }
+    // public function getModelName() {
+    //     if(empty($this->name))
+    //         $this->name =   substr(get_class($this),0,-5);
+    //     return $this->name;
+    // }
 
     /**
      * 得到完整的数据表名
