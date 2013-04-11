@@ -156,4 +156,9 @@ class Base {
 			exit(json_encode($this->vars));
 		}
 	}
+
+	protected function ajax()
+	{
+		$this->output('ajax');
+	}
 }
