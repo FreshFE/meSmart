@@ -146,12 +146,12 @@ class Base {
 	 */
 	private static function start_mapping()
 	{
-		// static::$mapping = static::classes_exists(array(
-		// 	'App\\'.GROUP_NAME.'\\Mapping',
-		// 	__NAMESPACE__.'\\Mapping'
-		// ));
+		static::$mapping = static::classes_exists(array(
+			'App\\'.GROUP_NAME.'\\Mapping',
+			__NAMESPACE__.'\\Mapping'
+		));
 
-		static::$mapping = 'App\\'.GROUP_NAME.'\\Mapping';
+		// static::$mapping = 'App\\'.GROUP_NAME.'\\Mapping';
 	}
 
 	/**
